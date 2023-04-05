@@ -4,38 +4,64 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
 
-	public CharacterController2D controller;
+  public CharacterController2D controller;
 
-	public float runSpeed = 40f;
+  public float runSpeed = 40f;
 
-	float horizontalMove = 0f;
-	bool jump = false;
-	bool crouch = false;
-	
-	// Update is called once per frame
-	void Update () {
+  float horizontalMove = 0f;
+  bool jump = false;
+  bool crouch = false;
+  
+  [SerializeField] private FixedJoystick _joystick;
+  [SerializeField] private Rigidbody2D rb;
+  private Vector2 _movement;
 
-		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+  [SerializeField] private LayerMask _groundLayer;
+  [SerializeField] private Transform _groundCheck;
+  public float jump1 = 5f;
+  // Update is called once per frame
+  void Update () {
 
-		if (Input.GetButtonDown("Jump"))
-		{
-			jump = true;
-		}
+    horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 
-		if (Input.GetButtonDown("Crouch"))
-		{
-			crouch = true;
-		} else if (Input.GetButtonUp("Crouch"))
-		{
-			crouch = false;
-		}
+    if (Input.GetButtonDown("Jump"))
+    {
+      jump = true;
+    }
 
-	}
+    if (Input.GetButtonDown("Crouch"))
+    {
+      crouch = true;
+    } else if (Input.GetButtonUp("Crouch"))
+    {
+      crouch = false;
+    }
+    
+    if(_joystick.Horizontal >= .2f) {
+      horizontalMove = runSpeed;
+    }
+    else if (_joystick.Horizontal <= -.2f){
+      horizontalMove = -runSpeed;
+    }
+  }
 
-	void FixedUpdate ()
-	{
-		// Move our character
-		controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
-		jump = false;
-	}
+  void FixedUpdate ()
+  {
+    // Move our character
+    controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
+    jump = false;
+  }
+  
+  public void Jump()
+  {
+    if ( IsGrounded())
+    {
+      rb.velocity=new Vector2(rb.velocity.x, jump1);
+    }
+    
+  }
+  private bool IsGrounded()
+  {
+    return Physics2D.OverlapCircle(_groundCheck.position, 0.2f, _groundLayer);
+  }
 }
