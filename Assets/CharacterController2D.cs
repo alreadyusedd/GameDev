@@ -20,7 +20,12 @@ public class CharacterController2D : MonoBehaviour
 	private Vector3 _Velocity = Vector3.zero;
 	private bool _wasCrouching = false;
 
-	private void Start()
+
+    [Header("Player Animation Settings")]
+    public Animator animator;
+
+
+    private void Start()
 	{
 		rb = GetComponent<Rigidbody2D>();
 
@@ -58,6 +63,8 @@ public class CharacterController2D : MonoBehaviour
 		{
 			if (crouch)
 			{
+        animator.SetBool("Crouching", true);
+
         if (!_wasCrouching)
 				{
 					_wasCrouching = true;
@@ -68,9 +75,10 @@ public class CharacterController2D : MonoBehaviour
 
 				if (_CrouchDisableCollider != null)
 					_CrouchDisableCollider.enabled = false;
-			} 
-      else
+			} else
 			{	
+				animator.SetBool("Crouching", false);
+
 				if (_CrouchDisableCollider != null)
 					_CrouchDisableCollider.enabled = true;
 
@@ -84,6 +92,17 @@ public class CharacterController2D : MonoBehaviour
 			Vector3 targetVelocity = new Vector2(move * 10f, rb.velocity.y);
 
 			rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref _Velocity, _MovementSmoothing);
+
+			animator.SetFloat("HorizontalMove", Mathf.Abs(move));
+
+			if (_Grounded ==false)
+			{
+				animator.SetBool("Jumping", true);
+			}
+			else
+			{
+				animator.SetBool("Jumping", false);
+			}
 
 			if (move > 0 && !_FacingRight)
 			{
